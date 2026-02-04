@@ -121,11 +121,37 @@
             box-shadow: 0 2px 10px rgba(0,0,0,0.1);
             border-bottom-left-radius: 4px;
         }
+        .ai-selector {
+            padding: 15px 20px;
+            background: white;
+            border-top: 1px solid #e0e0e0;
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+        .ai-option {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            padding: 8px 16px;
+            border-radius: 20px;
+            transition: background 0.3s;
+        }
+        .ai-option:hover {
+            background: #f0f0f0;
+        }
+        .ai-option.selected {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        .ai-option input[type="radio"] {
+            margin: 0;
+        }
         .chat-input {
             display: flex;
             padding: 20px;
             background: white;
-            border-top: 1px solid #e0e0e0;
             gap: 10px;
         }
         #userInput {
@@ -197,7 +223,7 @@
         <div class="chat-header">
             <div class="bot-icon">🤖</div>
             <div class="header-text">
-                <h2>AI Assistant</h2>
+                <h2>AI Assistant Bot</h2>
                 <p>Powered by Gemini AI</p>
             </div>
         </div>
@@ -207,9 +233,19 @@
                 <div class="message-content">Hello! I'm your AI assistant. How can I help you today?</div>
             </div>
         </div>
+        <div class="ai-selector">
+            <div class="ai-option selected" onclick="selectAI('openai')">
+                <input type="radio" name="aiProvider" value="openai" checked>
+                <span>OpenAI</span>
+            </div>
+            <div class="ai-option" onclick="selectAI('gemini')">
+                <input type="radio" name="aiProvider" value="gemini">
+                <span>Gemini</span>
+            </div>
+        </div>
         <div class="chat-input">
             <input type="text" id="userInput" placeholder="Type your message..." />
-            <button id="sendBtn">Send ✈️</button>
+            <button id="sendBtn">Send 🚀</button>
         </div>
     </div>
 
@@ -217,6 +253,20 @@
         const chatMessages = document.getElementById('chatMessages');
         const userInput = document.getElementById('userInput');
         const sendBtn = document.getElementById('sendBtn');
+        let selectedAI = 'openai';
+
+        function selectAI(provider) {
+            selectedAI = provider;
+            document.querySelectorAll('.ai-option').forEach(option => {
+                option.classList.remove('selected');
+            });
+            event.currentTarget.classList.add('selected');
+            document.querySelector(`input[value="${provider}"]`).checked = true;
+            
+            // Update header text
+            const headerText = document.querySelector('.header-text p');
+            headerText.textContent = `Powered by ${provider === 'openai' ? 'OpenAI' : 'Gemini AI'}`;
+        }
 
         function addMessage(content, isUser) {
             const messageDiv = document.createElement('div');
@@ -276,7 +326,10 @@
                     headers: {
                         'Content-Type': 'application/json'
                     },
-                    body: JSON.stringify({ input: message })
+                    body: JSON.stringify({ 
+                        input: message,
+                        provider: selectedAI 
+                    })
                 });
 
                 const data = await response.json();
